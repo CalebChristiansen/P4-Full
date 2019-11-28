@@ -47,7 +47,8 @@ void myhandler(int signum) // not sure what this is for yet
 void copyArgs(char * sToCopy, char * sSaveLocation, int numArgs)
 {
     //copys an array of args to another array
-    for (int i = 0; i < numArgs; i++) {
+    int i = 0;
+    for (i = 0; i < numArgs; i++) {
         while (*(sSaveLocation++) = *(sToCopy++));
     }
     
