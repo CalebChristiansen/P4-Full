@@ -23,20 +23,20 @@ const int space = ' ';
 const int lengthOfDone = 3; 
 
 
-int getword(char *w) {
+int getword(char *w, char *input) {
     int iochar, n = 0;
     char *letterLocation = w; 
 
-    while ( ( iochar = getchar() ) != EOF ) {
+    while ( ( iochar = *(input++) ) != '\0' ) {
         /*Check for ignoring special characters */
         if (iochar == '\\') {
             /*Grab the char after the \ while checking for end of file */
-            if ((iochar = getchar()) == EOF ) {
+            if ((iochar = *(input++)) == '\0' ) {
                 continue; 
             }
             /*We should put the \n back if it's after a \ */
             else if (iochar == '\n') {
-                ungetc(iochar, stdin);
+                input--;
                 continue;
             }
             /* All other chars after a \ are printed normally */
@@ -54,7 +54,7 @@ int getword(char *w) {
             }
             /*Is this a newline after a word?*/
             else if (n > 0 && iochar == '\n') {
-                ungetc(iochar, stdin);
+                input--;
                 return n;
             }
             /*This is the end of a word*/
@@ -74,13 +74,13 @@ int getword(char *w) {
             else if (n > 0) {
                 letterLocation = '\0';
                 /*Print the word first, then comback for this special char */
-                ungetc(iochar, stdin);
+                input--;
                 return n;
             }
             /*Is this a special case?*/
             else if (iochar == '>') {
                 *letterLocation++ = iochar;
-                if ((iochar = getchar()) == EOF) {
+                if ((iochar = *(input++)) == '\0') {
                 *letterLocation = '\0';
                 return 1;
                 }
@@ -94,7 +94,7 @@ int getword(char *w) {
                 else if (iochar == '>') {
                 *letterLocation++ = iochar;
                    /*Check for >>& */
-                    if ((iochar = getchar()) == EOF) {
+                    if ((iochar = *(input++)) == '\0') {
                         *letterLocation = '\0';
                         return 2;
                     }
@@ -106,7 +106,7 @@ int getword(char *w) {
                     /*This is just >> */
                     else {
                         /* we need the current random char for the next word */
-                        ungetc(iochar, stdin);
+                        input--;
                         *letterLocation = '\0';
                         return 2; 
                     }  
@@ -114,7 +114,7 @@ int getword(char *w) {
                 /*This is just > */
                 else {
                 /*we need the current random char for the next word */
-                ungetc(iochar, stdin);
+                input--;
                 *letterLocation = '\0';
                 return 1;
                 }
@@ -127,12 +127,12 @@ int getword(char *w) {
         /*Check for the word 'done' */
         if (n == lengthOfDone && *w == 'd' && *(++w) == 'o' && *(++w) == 'n' && *(++w) == 'e') {
             /* Ensure 'done' is not a prefix */
-            if ((iochar = getchar()) == EOF || iochar == space || iochar == '\n') {
+            if ((iochar = *(input++)) == '\0' || iochar == space || iochar == '\n') {
                 *letterLocation = '\0';  
                 return -1;
             } else {
                 /* we grabbed the next char after 'done' to check for end of word */
-                ungetc(iochar, stdin);
+                input--;
             } 
         }
         n++;

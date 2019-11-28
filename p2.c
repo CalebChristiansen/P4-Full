@@ -34,7 +34,8 @@ int repeatFlag = 0;           // 0 if no !!, 1 if !! is first word on line
 int complete = 0;             // 0 if signum not detected
 int backgroundFlag = 0;       // 0 if wait, 1 if background
 int numOfCommands = 1;        // How many successful commands have been typed?
-char writeLocation[STORAGE];  // storage for the file to write to. 
+char writeLocation[STORAGE];  // storage for the file to write to.
+char rawInput[MAXINPUT];
 
 
 void myhandler(int signum) // not sure what this is for yet
@@ -219,8 +220,26 @@ main()
 
 }
 
+char * getLine() {
+    char character;
+    int c;
+    c = 0;
+    do
+    {
+        character = getchar();
+        rawInput[c]   = character;
+        c++;
+    }
+    while(character != '\n');
+    c = c - 1;
+    rawInput[c] = '\0';
+    
+    return rawInput;
+}
+
 int parse()
 {
+    char *rawInputPointer = rawInput;
     /* Local Variables */
     int wordSize = 1;
     char *lineInputPointer = lineInput;
@@ -240,11 +259,15 @@ int parse()
     /* Reset Global Variables */
     resetGlobalVariables();
 
+    /* Prompt User for Input */
+    rawInputPointer = getLine();
+    
     // Store words into: lineInput
     // Store word locations (pointers) into: wordLocations
     while (wordSize > 0) {
         
-        wordSize = getword(lineInputPointer);
+        wordSize = getword(lineInputPointer, rawInputPointer);
+        rawInputPointer = rawInputPointer + wordSize + 1;
         *wordLocationsPointer = lineInputPointer;
         /* Check for done special case: wordSize is -1 if done is first word */
         if (wordSize == -1 && (*lineInputPointer) == 'd' && numWords > 0) {
@@ -268,12 +291,14 @@ int parse()
             while (*(lineInputPointer++) = *(prevInputPointer++));
             lineInputPointer = lineInput;
             /* Throw away the rest of the line */
-            while (getword(prevInputPointer) > 0);
+            while (getword(prevInputPointer, rawInputPointer) > 0);
+            rawInputPointer = rawInputPointer + wordSize + 1;
             break;
         }
         /* Set writeLocation pointer if > is detected */
         if (*lineInputPointer == '>' && wordSize == 1) {
-            wordSize = getword(writeLocation);
+            wordSize = getword(writeLocation, rawInputPointer);
+            rawInputPointer = rawInputPointer + wordSize + 1;
             if (wordSize == 0) {
                 perror("Error, no file was specified\n");
                 resetGlobalVariables();            
