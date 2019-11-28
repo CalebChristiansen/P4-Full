@@ -22,6 +22,7 @@
 const int space = ' ';
 const int lengthOfDone = 3; 
 
+
 int getword(char *w) {
     int iochar, n = 0;
     char *letterLocation = w; 

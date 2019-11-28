@@ -14,6 +14,16 @@
 /* Global Variables  */
 char lineInput[MAXINPUT];
 char prevInput[MAXINPUT];
+char Input1[MAXINPUT];
+char Input2[MAXINPUT];
+char Input3[MAXINPUT];
+char Input4[MAXINPUT];
+char Input5[MAXINPUT];
+char Input6[MAXINPUT];
+char Input7[MAXINPUT];
+char Input8[MAXINPUT];
+char Input9[MAXINPUT];
+char Input10[MAXINPUT];
 char *wordLocations[MAXITEM]; // Each item is a pointer to the start of a word.
                               // access them by creating a pointer: char **pointer
                               // access pointer: *(pointer) or *(pointer + n)
@@ -32,6 +42,42 @@ void myhandler(int signum) // not sure what this is for yet
     //printf("Recieved SIGTERM (%d), and the special handler is running...\n", signum);
     complete = 1;
 
+}
+
+void copyArgs(char * sToCopy, char * sSaveLocation, int numArgs)
+{
+    //copys an array of args to another array
+    for (int i = 0; i < numArgs; i++) {
+        while (*(sSaveLocation++) = *(sToCopy++));
+    }
+    
+}
+
+void saveToHistory(int instructNum)
+{
+    // After each command, save the array to its input location
+    if (instructNum == 1) {
+        copyArgs(lineInput, Input1, numWords);
+    } else if (instructNum == 2) {
+        copyArgs(lineInput, Input2, numWords);
+    } else if (instructNum == 3) {
+        copyArgs(lineInput, Input3, numWords);
+    } else if (instructNum == 4) {
+        copyArgs(lineInput, Input4, numWords);
+    } else if (instructNum == 5) {
+        copyArgs(lineInput, Input5, numWords);
+    } else if (instructNum == 6) {
+        copyArgs(lineInput, Input6, numWords);
+    } else if (instructNum == 7) {
+        copyArgs(lineInput, Input7, numWords);
+    } else if (instructNum == 8) {
+        copyArgs(lineInput, Input8, numWords);
+    } else if (instructNum == 9) {
+        copyArgs(lineInput, Input9, numWords);
+    } else if (instructNum == 10) {
+        copyArgs(lineInput, Input10, numWords);
+    }
+    return;
 }
 
 void resetGlobalVariables() {
@@ -53,11 +99,12 @@ main()
     for(;;) {
         printf("%%%d%% ", numOfCommands);
         parse();
+        
         /* check for EOF */
         if (doneEofFlag == -1 && numWords == 0) break;
         /* check for empty line */ 
         if (numWords == 0) continue;
-
+        
         /* check for cd */
         if (cdFlag != 0) {
             /* Check for too many arguments */
@@ -117,6 +164,7 @@ main()
         /* fork a child to run the requested program */
         child = fork();
         if (child == 0) {
+            // Child is doing this part
             /* redirect stdin to /dev/null */
             //int stdIn = open("/dev/null", O_RDONLY | O_RDWR | O_RDWR);
             //int dup2In = dup2(stdIn, STDIN_FILENO);
@@ -185,6 +233,9 @@ int parse()
     int cdFlagPrev = cdFlag;
     int numWordsPrev = numWords;
     int repeatFlagPrev = repeatFlag;
+    
+    /* Store to history */
+    saveToHistory(numOfCommands);
 
     /* Reset Global Variables */
     resetGlobalVariables();
@@ -192,6 +243,7 @@ int parse()
     // Store words into: lineInput
     // Store word locations (pointers) into: wordLocations
     while (wordSize > 0) {
+        
         wordSize = getword(lineInputPointer);
         *wordLocationsPointer = lineInputPointer;
         /* Check for done special case: wordSize is -1 if done is first word */
@@ -253,5 +305,7 @@ int parse()
         numOfCommands++;
     }
 }
+
+
 
 
