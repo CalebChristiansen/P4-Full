@@ -199,7 +199,7 @@ main()
                     perror("Cannot write, file already exists\n");
                     exit(1);
                 }
-                int exists = open(writeLocation, O_RDONLY);
+                int exists = open(writeLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
                 int dup2Out = dup2(exists, STDOUT_FILENO);
                 close(exists);
             }
@@ -212,7 +212,7 @@ main()
                 }
                 printf("Reading from file: %s\n", readLocation);
                 fflush(NULL);
-                int exists = open(readLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+                int exists = open(readLocation, O_RDONLY);
                 int dup2Out = dup2(exists, STDIN_FILENO);
                 close(exists);
             }
