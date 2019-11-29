@@ -134,6 +134,31 @@ main()
             }
             /* Check for cd pathname */
             else if (numWords == 2) {
+                
+                if (chdir(*(wordLocationsPointer + 1)) != 0) {
+                    
+                    /* Dir doesn't exist, check for full path */
+                    char tempBuff[STORAGE]; // filePath Storage
+                    char * tempBuffPointer = tempBuff;
+                    char * filePointer = *(wordLocationsPointer + 1);   //name of file to cd into
+                    getcwd(tempBuff, sizeof(tempBuff)); //places current working dir in tempBuff
+                    
+                    /* point tempBuffPointer at end of cwd */
+                    while (*(tempBuffPointer++));
+                    tempBuffPointer--;  // remove null terminator
+                    *(tempBuffPointer++) = '/';
+                    
+                    /* coppy folder name onto end of cwd */
+                    while (*(tempBuffPointer++) = *(filePointer++));
+                    /*Check again for correct file */
+                    if (chdir(tempBuff) != 0) {
+                        perror("could not cd");
+                    }
+                    
+                }
+                // cd done, reprompt
+                continue;
+                
                 /* Check if dir exists */
                 DIR* dir = opendir(*wordLocationsPointer + 1);
                 if (dir) {
