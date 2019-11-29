@@ -94,6 +94,7 @@ void resetGlobalVariables()
     *writeLocation = '\0';
     *readLocation = '\0';
     backgroundFlag = 0;
+    pipeFlag = 0;
 }
 
 void clearArray(char *arrayToClear, int size)
@@ -180,7 +181,7 @@ main()
         
         
         if (pipeFlag == 1) {
-            printf("pipe flag works! \n");
+            //printf("pipe flag works! \n");
         }
         
         fflush(NULL); //not sure if forcing data out is necessary. 

@@ -43,7 +43,7 @@ int getword(char *w, char **pointerToInput) {
             //checking for if we should should treat this as a pipe
             else if (iochar == '|') {
                 isPipe = 0;
-                printf("not a pipe \n");
+                //printf("not a pipe \n");
 		(*pointerToInput)--;
                 continue;
             }
@@ -80,9 +80,9 @@ int getword(char *w, char **pointerToInput) {
             
             // check for a pipe to set flag
             if (n == 0 && iochar == '|' && isPipe == 1) {
-                printf("setting pipe flag to one\n");
-		printf("value of isPipe: %d\n" , isPipe);
-		pipeFlag = 1;
+                //printf("setting pipe flag to one\n");
+		        //printf("value of isPipe: %d\n" , isPipe);
+		        pipeFlag = 1;
             }
             
             /*Is this the first char?*/
@@ -93,9 +93,9 @@ int getword(char *w, char **pointerToInput) {
             }
             /*Is a this after a word?*/
             else if (n > 0) {
-		//if we have a pipe character that is not an actual pipe
+		        //if we have a pipe character that is not an actual pipe
                 if (iochar == '|' && isPipe == 0) {
-		    *letterLocation++ = iochar;
+		            *letterLocation++ = iochar;
 		    *letterLocation = '\0';
 		    return n+1;
 		}
