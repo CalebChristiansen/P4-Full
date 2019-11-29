@@ -4,8 +4,8 @@
 /* Caleb Christiansen
  * John Carroll
  * CS570
- * Program 2
- * Due Oct 9, 2019 10/9/2019
+ * Program 4
+ * Due Nov 29, 2019 11/29/2019
  * This program is designed to emulate a real command shell. It can run programs and allows you
  * to navigate the file system, and manipulate files. Note that certain behavior is not exactly
  * like the shell. This is 100% intentional as this program's behavoir makes more sense. ;)
@@ -196,7 +196,7 @@ main()
             /* This code is ineffcient! Will move to parse() later if time permits */
             /* It is finding the arguments to place in execvp */
             char *cmd = *wordLocationsPointer;
-            char *argv[numWords];
+            char *argv[MAXINPUT];
             int i;
             for (i = 0; i <= numWords; i++) {
                 argv[i] = *(wordLocationsPointer++);
