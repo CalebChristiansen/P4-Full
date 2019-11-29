@@ -92,6 +92,7 @@ void resetGlobalVariables() {
     complete = 0;
     *writeLocation = '\0';
     backgroundFlag = 0;
+    pipeFlag = 0;
 }
 
 void clearArray(char *arrayToClear, int size) {
