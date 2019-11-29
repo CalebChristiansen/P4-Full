@@ -10,7 +10,7 @@
 #define STORAGE 255
       /* This is one more than the max wordsize that getword() can handle */
 
-int getword(char *w, char *input);
+int getword(char *w, char **input);
 /* (Note: the preceding line is an ANSI C prototype statement for getword().
     It will work fine with edoras' gcc or cc compiler.)
 

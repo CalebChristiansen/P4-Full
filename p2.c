@@ -34,6 +34,7 @@ int repeatFlag = 0;           // 0 if no !!, 1 if !! is first word on line
 int complete = 0;             // 0 if signum not detected
 int backgroundFlag = 0;       // 0 if wait, 1 if background
 int numOfCommands = 1;        // How many successful commands have been typed?
+int pipeFlag = 0;
 char writeLocation[STORAGE];  // storage for the file to write to.
 char rawInput[MAXINPUT];
 
@@ -172,6 +173,13 @@ main()
         if (repeatFlag != 0) {
                 //currently handled by parse. Is this efficient?
         }
+        
+        
+        
+        if (pipeFlag == 1) {
+            printf("pipe flag works! \n");
+        }
+        
         fflush(NULL); //not sure if forcing data out is necessary. 
         /* fork a child to run the requested program */
         child = fork();
@@ -313,8 +321,8 @@ int parse(char *rawInputPointer, int userInputFlag)
 
     while (wordSize > 0) {
         
-        wordSize = getword(lineInputPointer, rawInputPointer);
-        rawInputPointer = rawInputPointer + wordSize + 1;
+        char **pointerToRawInputPointer = &rawInputPointer;
+        wordSize = getword(lineInputPointer, pointerToRawInputPointer);
         *wordLocationsPointer = lineInputPointer;
         /* Check for done special case: wordSize is -1 if done is first word */
         if (wordSize == -1 && (*lineInputPointer) == 'd' && numWords > 0) {
@@ -338,15 +346,14 @@ int parse(char *rawInputPointer, int userInputFlag)
             while (*(lineInputPointer++) = *(prevInputPointer++));
             lineInputPointer = lineInput;
             /* Throw away the rest of the line */
-            while (getword(prevInputPointer, rawInputPointer) > 0);
-            rawInputPointer = rawInputPointer + wordSize + 1;
+            while (getword(prevInputPointer, pointerToRawInputPointer) > 0);
             break;
         }
         /* Call history if necesary */
         if (numWords == 0 && wordSize == 2 && (*lineInputPointer == '!')){
             int historyNumber = charToInt(*(lineInputPointer+1));
             if (historyNumber < numOfCommands && historyNumber > 0) {
-                parse(rawInputPointer, historyNumber);
+                parse(*pointerToRawInputPointer, historyNumber);
                 break;
             } else {
                 printf("ERROR, out of history range \n");
@@ -355,8 +362,7 @@ int parse(char *rawInputPointer, int userInputFlag)
         }
         /* Set writeLocation pointer if > is detected */
         if (*lineInputPointer == '>' && wordSize == 1) {
-            wordSize = getword(writeLocation, rawInputPointer);
-            rawInputPointer = rawInputPointer + wordSize + 1;
+            wordSize = getword(writeLocation, pointerToRawInputPointer);
             if (wordSize == 0) {
                 perror("Error, no file was specified\n");
                 resetGlobalVariables();            

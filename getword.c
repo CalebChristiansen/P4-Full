@@ -20,23 +20,36 @@
 #include "getword.h"
 
 const int space = ' ';
-const int lengthOfDone = 3; 
+const int lengthOfDone = 3;
+extern int pipeFlag;             // Is | present?
 
 
-int getword(char *w, char *input) {
+int getword(char *w, char **pointerToInput) {
+    
     int iochar, n = 0;
-    char *letterLocation = w; 
+    char *letterLocation = w;
+    int isPipe = 1;
+    
 
-    while ( ( iochar = *(input++) ) != '\0' ) {
+    while ( ( iochar = *((*pointerToInput)++) ) != '\0' ) {
         /*Check for ignoring special characters */
         if (iochar == '\\') {
-            /*Grab the char after the \ while checking for end of file */
-            if ((iochar = *(input++)) == '\0' ) {
-                continue; 
+            /*Grab the char after the \ */
+            iochar = *((*pointerToInput)++);
+            //checking for end of file
+            if (iochar == '\0' ) {
+                continue;
+            }
+            //checking for if we should should treat this as a pipe
+            else if (iochar == '|') {
+                isPipe = 0;
+                printf("not a pipe \n");
+		(*pointerToInput)--;
+                continue;
             }
             /*We should put the \n back if it's after a \ */
             else if (iochar == '\n') {
-                input--;
+                (*pointerToInput)--;
                 continue;
             }
             /* All other chars after a \ are printed normally */
@@ -54,7 +67,7 @@ int getword(char *w, char *input) {
             }
             /*Is this a newline after a word?*/
             else if (n > 0 && iochar == '\n') {
-                input--;
+                (*pointerToInput)--;
                 return n;
             }
             /*This is the end of a word*/
@@ -64,7 +77,15 @@ int getword(char *w, char *input) {
         }
         /*Check for Special Character  */
         else if (iochar == '|' || iochar == '#' || iochar == '&' || iochar == '<' || iochar == '>') {
-            /*Is this the first char?*/ 
+            
+            // check for a pipe to set flag
+            if (n == 0 && iochar == '|' && isPipe == 1) {
+                printf("setting pipe flag to one\n");
+		printf("value of isPipe: %d\n" , isPipe);
+		pipeFlag = 1;
+            }
+            
+            /*Is this the first char?*/
             if (n == 0 && iochar != '>') {
                 *letterLocation++ = iochar;
                 *letterLocation = '\0';
@@ -72,15 +93,21 @@ int getword(char *w, char *input) {
             }
             /*Is a this after a word?*/
             else if (n > 0) {
-                letterLocation = '\0';
+		//if we have a pipe character that is not an actual pipe
+                if (iochar == '|' && isPipe == 0) {
+		    *letterLocation++ = iochar;
+		    *letterLocation = '\0';
+		    return n+1;
+		}
+		*letterLocation = '\0';
                 /*Print the word first, then comback for this special char */
-                input--;
+                (*pointerToInput)--;
                 return n;
             }
             /*Is this a special case?*/
             else if (iochar == '>') {
                 *letterLocation++ = iochar;
-                if ((iochar = *(input++)) == '\0') {
+                if ((iochar = *((*pointerToInput)++)) == '\0') {
                 *letterLocation = '\0';
                 return 1;
                 }
@@ -94,7 +121,7 @@ int getword(char *w, char *input) {
                 else if (iochar == '>') {
                 *letterLocation++ = iochar;
                    /*Check for >>& */
-                    if ((iochar = *(input++)) == '\0') {
+                    if ((iochar = *((*pointerToInput)++)) == '\0') {
                         *letterLocation = '\0';
                         return 2;
                     }
@@ -106,17 +133,17 @@ int getword(char *w, char *input) {
                     /*This is just >> */
                     else {
                         /* we need the current random char for the next word */
-                        input--;
+                        (*pointerToInput)--;
                         *letterLocation = '\0';
                         return 2; 
                     }  
                 }
                 /*This is just > */
                 else {
-                /*we need the current random char for the next word */
-                input--;
-                *letterLocation = '\0';
-                return 1;
+                    /*we need the current random char for the next word */
+                    (*pointerToInput)--;
+                    *letterLocation = '\0';
+                    return 1;
                 }
                 
             }
@@ -127,12 +154,12 @@ int getword(char *w, char *input) {
         /*Check for the word 'done' */
         if (n == lengthOfDone && *w == 'd' && *(++w) == 'o' && *(++w) == 'n' && *(++w) == 'e') {
             /* Ensure 'done' is not a prefix */
-            if ((iochar = *(input++)) == '\0' || iochar == space || iochar == '\n') {
+            if ((iochar = *((*pointerToInput)++)) == '\0' || iochar == space || iochar == '\n') {
                 *letterLocation = '\0';  
                 return -1;
             } else {
                 /* we grabbed the next char after 'done' to check for end of word */
-                input--;
+                (*pointerToInput)--;
             } 
         }
         n++;
