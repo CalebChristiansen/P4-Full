@@ -156,45 +156,6 @@ main()
                     }
                     
                 }
-                // cd done, reprompt
-                continue;
-                
-                /* Check if dir exists */
-                DIR* dir = opendir(*wordLocationsPointer + 1);
-                if (dir) {
-                    /* Directory exists. */
-                    closedir(dir);
-                    chdir(*(wordLocationsPointer + 1));
-                } else if (ENOENT == errno) {
-                    /* Dir doesn't exist, check for full path */
-                    char tempBuff[STORAGE]; // filePath Storage
-                    char * tempBuffPointer = tempBuff; 
-                    char * filePointer = *(wordLocationsPointer + 1);   //name of file to cd into
-                    getcwd(tempBuff, sizeof(tempBuff)); //places current working dir in tempBuff
-                    
-                    /* point tempBuffPointer at end of cwd */
-                    while (*(tempBuffPointer++));
-                    tempBuffPointer--;  // remove null terminator
-                    *(tempBuffPointer++) = '/';
-                   
-                    /* coppy folder name onto end of cwd */
-                    while (*(tempBuffPointer++) = *(filePointer++));
-                    /*Check again for correct file */
-                    dir = opendir(tempBuff);
-                    if (dir) {
-                        closedir(dir);
-                        chdir(tempBuff);
-                    } else if (ENOENT == errno) {
-                        /* Directory does not exist. */
-                        printf("%s does not exist\n", tempBuff);
-                        perror("This directory does not exist\n");
-                    } else {
-                        perror("The directory failed to open");
-                    }
-                } else {
-                    /* opendir() failed to open for another reason. */
-                    perror("The directory failed to open");
-                }
             }
             continue; //end of cd section, reprompt
         }
