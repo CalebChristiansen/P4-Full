@@ -345,12 +345,12 @@ int parse(char *rawInputPointer, int userInputFlag)
         /* Call history if necesary */
         if (numWords == 0 && wordSize == 2 && (*lineInputPointer == '!')){
             int historyNumber = charToInt(*(lineInputPointer+1));
-            if (historyNumber <= 10 && historyNumber > 0) {
+            if (historyNumber < numOfCommands && historyNumber > 0) {
                 parse(rawInputPointer, historyNumber);
                 break;
             } else {
-                printf("ERROR, out of history range");
-                continue;
+                printf("ERROR, out of history range \n");
+                break;
             }
         }
         /* Set writeLocation pointer if > is detected */
