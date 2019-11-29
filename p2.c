@@ -36,8 +36,8 @@ int backgroundFlag = 0;       // 0 if wait, 1 if background
 int numOfCommands = 1;        // How many successful commands have been typed?
 int pipeFlag = 0;
 char writeLocation[STORAGE];  // storage for the file to write to.
+char readLocation[STORAGE];   // storage for the file to read from.
 char rawInput[MAXINPUT];
-
 
 void myhandler(int signum) // not sure what this is for yet
 {
@@ -85,16 +85,19 @@ void saveToHistory(int instructNum)
     return;
 }
 
-void resetGlobalVariables() {
+void resetGlobalVariables()
+{
     numWords = 0;
     doneEofFlag = 0;
     cdFlag = 0;
     complete = 0;
     *writeLocation = '\0';
+    *readLocation = '\0';
     backgroundFlag = 0;
 }
 
-void clearArray(char *arrayToClear, int size) {
+void clearArray(char *arrayToClear, int size)
+{
     int i = 0;
     for (i = 0; i < size; i++) {
         *arrayToClear = '\0';
@@ -199,6 +202,18 @@ main()
                 int dup2Out = dup2(exists, STDOUT_FILENO);
                 close(exists);
             }
+            
+            /* Check for < to read from file */
+            if (*readLocation != '\0')  {
+                if (access(readLocation, F_OK) == -1) {
+                    perror("Cannot read, file does not exist\n");
+                    exit(2);
+                }
+                int exists = open(readLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+                int dup2Out = dup2(exists, STDIN_FILENO);
+                close(exists);
+            }
+            
 
             
             /* This code is ineffcient! Will move to parse() later if time permits */
@@ -239,7 +254,8 @@ main()
 
 }
 
-char * getLine() {
+char * getLine()
+{
     char character;
     int c;
     c = 0;
@@ -256,7 +272,8 @@ char * getLine() {
     return rawInput;
 }
 
-char * getHistory(int instructNum) {
+char * getHistory(int instructNum)
+{
     // After each command, save the array to its input location
     if (instructNum == 1) {
         return Input1;
@@ -282,7 +299,8 @@ char * getHistory(int instructNum) {
     return rawInput;
 }
 
-int charToInt(char charToConvert) {
+int charToInt(char charToConvert)
+{
     int x = charToConvert - '0';
     return x;
 }
@@ -364,11 +382,21 @@ int parse(char *rawInputPointer, int userInputFlag)
         if (*lineInputPointer == '>' && wordSize == 1) {
             wordSize = getword(writeLocation, pointerToRawInputPointer);
             if (wordSize == 0) {
-                perror("Error, no file was specified\n");
+                perror("Error, no file was specified to write\n");
                 resetGlobalVariables();            
                 break;
             }
             continue; // > should not be counted as a word
+        }
+        /* Set readLocation pointer if < is detected */
+        if (*lineInputPointer == '<' && wordSize == 1) {
+            wordSize = getword(readLocation, pointerToRawInputPointer);
+            if (wordSize == 0) {
+                perror("Error, no file was specified to read\n");
+                resetGlobalVariables();
+                break;
+            }
+            continue; // < should not be counted as a word
         }
         /* Check for background command (&) */
         if (wordSize == 1 && *lineInputPointer == '&') {
@@ -394,7 +422,3 @@ int parse(char *rawInputPointer, int userInputFlag)
         numOfCommands++;
     }
 }
-
-
-
-
