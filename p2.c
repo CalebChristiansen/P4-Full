@@ -206,10 +206,11 @@ main()
             
             /* Check for < to read from file */
             if (*readLocation != '\0')  {
-                if (access(readLocation, F_OK) == -1) {
+                if (access(readLocation, R_OK) == -1) {
                     perror("Cannot read, file does not exist\n");
                     exit(2);
                 }
+                printf("Reading from file: %s\n", readLocation);
                 int exists = open(readLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
                 int dup2Out = dup2(exists, STDIN_FILENO);
                 close(exists);
