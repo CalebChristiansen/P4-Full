@@ -267,16 +267,6 @@ main()
             
             //set up file read write
 
-            /* Check for < to read from file */
-            if (*readLocation != '\0')  {
-                if (access(readLocation, R_OK) == -1) {
-                    perror("Cannot read, file does not exist\n");
-                    exit(2);
-                }
-                int exists = open(readLocation, O_RDONLY);
-                int dup2Out = dup2(exists, STDIN_FILENO);
-                close(exists);
-            }
             
             
             pid_t first, second;
@@ -292,6 +282,17 @@ main()
                     CHK(dup2(fildes[1],STDOUT_FILENO));
                     CHK(close(fildes[0]));
                     CHK(close(fildes[1]));
+                    
+                    /* Check for < to read from file */
+                    if (*readLocation != '\0')  {
+                        if (access(readLocation, R_OK) == -1) {
+                            perror("Cannot read, file does not exist\n");
+                            exit(2);
+                        }
+                        int exists = open(readLocation, O_RDONLY);
+                        int dup2Out = dup2(exists, STDIN_FILENO);
+                        close(exists);
+                    }
                     
                     // run commands
                     if (execvp(argv1[0], argv1) != 0) {
