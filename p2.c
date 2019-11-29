@@ -178,7 +178,7 @@ main()
         
         
         if (pipeFlag == 1) {
-            printf("pipe flag works! \n");
+            //printf("pipe flag works! \n");
         }
         
         fflush(NULL); //not sure if forcing data out is necessary. 
