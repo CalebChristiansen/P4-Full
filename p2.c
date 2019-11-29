@@ -27,6 +27,9 @@ char Input10[MAXINPUT];
 char *wordLocations[MAXITEM]; // Each item is a pointer to the start of a word.
                               // access them by creating a pointer: char **pointer
                               // access pointer: *(pointer) or *(pointer + n)
+char *argv1[MAXITEM];         // array of pointers to word locations for argv child 1
+char *argv2[MAXITEM];         // array of pointers to word locations for argv child 2
+
 int numWords;                 // The number of words on the line
 int doneEofFlag = 0;          // 0 if clear, -1 if getWord returned -1
 int cdFlag = 0;               // 0 if no cd, 1 if cd is present
@@ -104,6 +107,27 @@ void clearArray(char *arrayToClear, int size)
         *arrayToClear = '\0';
         arrayToClear++;
     }
+}
+
+void formatPipeArgv() {
+    // Set up the argv1 and argv2 arrays for piping
+    char **wordLocationsPointer = wordLocations;
+    
+    int i = 0;
+    while (**(wordLocationsPointer) != '|') {
+        argv1[i] = *(wordLocationsPointer++);
+        i++;
+    }
+    wordLocationsPointer++;
+    argv1[i] = NULL;
+    i++;
+    int j = 0;
+    while (i < numWords) {
+        argv2[j] = *(wordLocationsPointer++);
+        j++;
+        i++;
+    }
+    argv2[j] = NULL;
 }
 
 main()
@@ -237,6 +261,85 @@ main()
         else {
             // There is a pipe! run pipe code
             fflush(NULL); //clear output so no duplicates are printed
+            
+            //format argv1 and argv2 arrays
+            formatPipeArgv();
+            
+            //set up file read write
+
+            /* Check for < to read from file */
+            if (*readLocation != '\0')  {
+                if (access(readLocation, R_OK) == -1) {
+                    perror("Cannot read, file does not exist\n");
+                    exit(2);
+                }
+                int exists = open(readLocation, O_RDONLY);
+                int dup2Out = dup2(exists, STDIN_FILENO);
+                close(exists);
+            }
+            
+            
+            pid_t first, second;
+            // create first child
+            CHK(first = fork());
+            if (0 == first) {
+                int fildes[2];
+                pipe(fildes);
+                
+                //create second child
+                CHK(second = fork());
+                if (second == 0) {
+                    CHK(dup2(fildes[1],STDOUT_FILENO));
+                    CHK(close(fildes[0]));
+                    CHK(close(fildes[1]));
+                    
+                    // run commands
+                    if (execvp(argv1[0], argv1) != 0) {
+                        perror("The program could not be executed\n");
+                        exit(2);
+                    }
+                    
+                }
+                
+                //wait for second to finish
+                for (;;) {
+                    pid_t pid;
+                    CHK(pid = wait(NULL));
+                    if (pid == second) {
+                        break;
+                    }
+                }
+                //once second child done, set stdout
+                CHK(dup2(fildes[0],STDIN_FILENO));
+                CHK(close(fildes[0]));
+                CHK(close(fildes[1]));
+               
+                /* Check for > to write into file */
+                if (*writeLocation != '\0')  {
+                    if (access(writeLocation, F_OK) != -1) {
+                        perror("Cannot write, file already exists\n");
+                        exit(1);
+                    }
+                    int exists = open(writeLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+                    int dup2Out = dup2(exists, STDOUT_FILENO);
+                    close(exists);
+                }
+                
+                //run commands
+                if (execvp(argv2[0], argv2) != 0) {
+                    perror("The program could not be executed\n");
+                    exit(2);
+                }
+            }
+            
+            //wait for first to finish
+            for (;;) {
+                pid_t pid;
+                CHK(pid = wait(NULL));
+                if (pid == first) {
+                    break;
+                }
+            }
         }
     }
     killpg(getpgrp(), SIGTERM); // Terminate any children that are still running. 
