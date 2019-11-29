@@ -178,77 +178,78 @@ main()
                 //currently handled by parse. Is this efficient?
         }
         
-        
-        
-        if (pipeFlag == 1) {
-            //printf("pipe flag works! \n");
-        }
-        
-        fflush(NULL); //not sure if forcing data out is necessary. 
-        /* fork a child to run the requested program */
-        child = fork();
-        if (child == 0) {
-            // Child is doing this part
-            /* redirect stdin to /dev/null */
-            //int stdIn = open("/dev/null", O_RDONLY | O_RDWR | O_RDWR);
-            //int dup2In = dup2(stdIn, STDIN_FILENO);
-
-            /* Check for > to write into file */
-            if (*writeLocation != '\0')  {
-                if (access(writeLocation, F_OK) != -1) {
-                    perror("Cannot write, file already exists\n");
-                    exit(1);
-                }
-                int exists = open(writeLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-                int dup2Out = dup2(exists, STDOUT_FILENO);
-                close(exists);
-            }
+        if (pipeFlag != 1) {
+        // There is no pipe, run normally
             
-            /* Check for < to read from file */
-            if (*readLocation != '\0')  {
-                if (access(readLocation, R_OK) == -1) {
-                    perror("Cannot read, file does not exist\n");
+            fflush(NULL); //not sure if forcing data out is necessary.
+            /* fork a child to run the requested program */
+            child = fork();
+            if (child == 0) {
+                // Child is doing this part
+                /* redirect stdin to /dev/null */
+                //int stdIn = open("/dev/null", O_RDONLY | O_RDWR | O_RDWR);
+                //int dup2In = dup2(stdIn, STDIN_FILENO);
+
+                /* Check for > to write into file */
+                if (*writeLocation != '\0')  {
+                    if (access(writeLocation, F_OK) != -1) {
+                        perror("Cannot write, file already exists\n");
+                        exit(1);
+                    }
+                    int exists = open(writeLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+                    int dup2Out = dup2(exists, STDOUT_FILENO);
+                    close(exists);
+                }
+                
+                /* Check for < to read from file */
+                if (*readLocation != '\0')  {
+                    if (access(readLocation, R_OK) == -1) {
+                        perror("Cannot read, file does not exist\n");
+                        exit(2);
+                    }
+                    int exists = open(readLocation, O_RDONLY);
+                    int dup2Out = dup2(exists, STDIN_FILENO);
+                    close(exists);
+                }
+                
+
+                
+                /* This code is ineffcient! Will move to parse() later if time permits */
+                /* It is finding the arguments to place in execvp */
+                char *cmd = *wordLocationsPointer;
+                char *argv[MAXINPUT];
+                int i;
+                for (i = 0; i <= numWords; i++) {
+                    argv[i] = *(wordLocationsPointer++);
+                    if (i == numWords) {
+                        argv[i] = NULL;
+                    }
+                }
+                /* execute the program! */
+                if (execvp(cmd, argv) != 0) {
+                    perror("The program could not be executed\n");
                     exit(2);
                 }
-                printf("Reading from file: %s\n", readLocation);
-                fflush(NULL);
-                int exists = open(readLocation, O_RDONLY);
-                int dup2Out = dup2(exists, STDIN_FILENO);
-                close(exists);
             }
-            
 
-            
-            /* This code is ineffcient! Will move to parse() later if time permits */
-            /* It is finding the arguments to place in execvp */
-            char *cmd = *wordLocationsPointer;
-            char *argv[MAXINPUT];
-            int i;
-            for (i = 0; i <= numWords; i++) {
-                argv[i] = *(wordLocationsPointer++);
-                if (i == numWords) {
-                    argv[i] = NULL;
+            /* wait for child */
+            for (;;) {
+                pid_t pid;
+                if (backgroundFlag) {
+                    printf("pid = [%d]\n", child);
+                    printf("Process = %s\n", (*wordLocations));
+                    break;
+                }
+                CHK(pid = wait(NULL));
+                if (pid == child) {
+                    break;
                 }
             }
-            /* execute the program! */
-            if (execvp(cmd, argv) != 0) {
-                perror("The program could not be executed\n");
-                exit(2);
-            }
+            
         }
-
-        /* wait for child */ 
-        for (;;) {
-            pid_t pid;
-            if (backgroundFlag) {
-                printf("pid = [%d]\n", child);
-                printf("Process = %s\n", (*wordLocations));
-                break;
-            }
-            CHK(pid = wait(NULL));
-            if (pid == child) {
-                break;
-            }
+        else {
+            // There is a pipe! run pipe code
+            
         }
     }
     killpg(getpgrp(), SIGTERM); // Terminate any children that are still running. 
