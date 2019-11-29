@@ -161,7 +161,8 @@ main()
                         chdir(tempBuff);
                     } else if (ENOENT == errno) {
                         /* Directory does not exist. */
-                        perror("This directory does not exist");
+                        printf("%s does not exist\n", tempBuff);
+                        perror("This directory does not exist\n");
                     } else {
                         perror("The directory failed to open");
                     }
@@ -181,7 +182,7 @@ main()
         if (pipeFlag != 1) {
         // There is no pipe, run normally
             
-            fflush(NULL); //not sure if forcing data out is necessary.
+            fflush(NULL); //clear output so no duplicates are printed
             /* fork a child to run the requested program */
             child = fork();
             if (child == 0) {
@@ -249,7 +250,7 @@ main()
         }
         else {
             // There is a pipe! run pipe code
-            
+            fflush(NULL); //clear output so no duplicates are printed
         }
     }
     killpg(getpgrp(), SIGTERM); // Terminate any children that are still running. 
