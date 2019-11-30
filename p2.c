@@ -40,6 +40,7 @@ int numOfCommands = 1;        // How many successful commands have been typed?
 int pipeFlag = 0;
 char writeLocation[STORAGE];  // storage for the file to write to.
 char readLocation[STORAGE];   // storage for the file to read from.
+char writeLocationApp[STORAGE]; // write location append flag and pointer
 char rawInput[MAXINPUT];
 int EOFDetected = 0;
 char *argvCopy[];
@@ -99,6 +100,7 @@ void resetGlobalVariables()
     complete = 0;
     *writeLocation = '\0';
     *readLocation = '\0';
+    *writeLocationApp = '\0';
     backgroundFlag = 0;
     pipeFlag = 0;
 }
@@ -237,6 +239,17 @@ main(int argc, char *argv[])
                     close(exists);
                 }
                 
+                /* Check for >> to append to file */
+                if (*writeLocationApp != '\0') {
+                    if (access(writeLocationApp, F_OK) == -1) {
+                        perror("Cannot write, file does not exist\n");
+                        exit(1);
+                    }
+                    int exists = open(writeLocationApp, O_APPEND | O_RDWR | S_IRUSR | S_IWUSR);
+                    int dup2Out = dup2(exists, STDOUT_FILENO);
+                    close(exists);
+                }
+                
                 /* This code is ineffcient! Will move to parse() later if time permits */
                 /* It is finding the arguments to place in execvp */
                 char *cmd = *wordLocationsPointer;
@@ -334,6 +347,17 @@ main(int argc, char *argv[])
                         exit(1);
                     }
                     int exists = open(writeLocation, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+                    int dup2Out = dup2(exists, STDOUT_FILENO);
+                    close(exists);
+                }
+                
+                /* Check for >> to append to file */
+                if (*writeLocationApp != '\0') {
+                    if (access(writeLocationApp, F_OK) == -1) {
+                        perror("Cannot write, file does not exist\n");
+                        exit(1);
+                    }
+                    int exists = open(writeLocationApp, O_APPEND | O_RDWR | S_IRUSR | S_IWUSR);
                     int dup2Out = dup2(exists, STDOUT_FILENO);
                     close(exists);
                 }
@@ -518,6 +542,16 @@ int parse(char *rawInputPointer, int userInputFlag)
         /* Set readLocation pointer if < is detected */
         if (*lineInputPointer == '<' && wordSize == 1) {
             wordSize = getword(readLocation, pointerToRawInputPointer);
+            if (wordSize == 0) {
+                perror("Error, no file was specified to read\n");
+                resetGlobalVariables();
+                break;
+            }
+            continue; // < should not be counted as a word
+        }
+        // set writeLocationApp if >> is detected
+        if (*lineInputPointer == '>' && *(lineInputPointer+1) == '>' && wordSize == 2) {
+            wordSize = getword(writeLocationApp, pointerToRawInputPointer);
             if (wordSize == 0) {
                 perror("Error, no file was specified to read\n");
                 resetGlobalVariables();
