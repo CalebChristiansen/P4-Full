@@ -139,7 +139,12 @@ main()
     (void) signal(SIGTERM, myhandler);
 
     for(;;) {
+        // did the file we are reading frome end?
+        if (EOFDetected) {
+            break;
+        }
         printf("%%%d%% ", numOfCommands);
+
         parse(rawInput, 0);
         
         /* check for EOF */
@@ -344,10 +349,7 @@ main()
             }
         }
         
-        // did the file we are reading frome end?
-        if (EOFDetected) {
-            break;
-        }
+
     }
     killpg(getpgrp(), SIGTERM); // Terminate any children that are still running. 
     printf("p2 terminated.\n"); // ensure printf is after killpg
