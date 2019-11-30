@@ -372,7 +372,7 @@ char * getLine()
         rawInput[c]   = character;
         c++;
     }
-    while(character != '\n' );
+    while(character != '\n' && EOFDetected == 0);
     c = c - 1;
     rawInput[c] = '\0';
     
