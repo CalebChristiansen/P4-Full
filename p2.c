@@ -157,7 +157,7 @@ main(int argc, char *argv[])
         }
         // only prompt if argv is not present
         if (argvCopy[1] == NULL) {
-        printf("%%%d%% ", numOfCommands);
+            printf("%%%d%% ", numOfCommands);
         }
 
         parse(rawInput, 0);
@@ -635,6 +635,12 @@ int parse(char *rawInputPointer, int userInputFlag)
                 break;
             }
             continue; // <<& should not be counted as a word
+        }
+        // check for # while reading from file
+        if (argvCopy[1] != NULL) {
+            if (*lineInputPointer == '#' && wordSize == 1) {
+                break;
+            }
         }
         /* Check for background command (&) */
         if (wordSize == 1 && *lineInputPointer == '&') {

@@ -76,7 +76,7 @@ int getword(char *w, char **pointerToInput) {
             }
         }
         /*Check for Special Character  */
-        else if (iochar == '|' || iochar == '#' || iochar == '&' || iochar == '<' || iochar == '>') {
+        else if (iochar == '|' || iochar == '&' || iochar == '<' || iochar == '>') {
             
             // check for a pipe to set flag
             if (n == 0 && iochar == '|' && isPipe == 1) {
