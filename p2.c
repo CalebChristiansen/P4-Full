@@ -351,16 +351,20 @@ main()
 
 char * getLine()
 {
-    char character;
+    int character;
     int c;
     c = 0;
     do
     {
-        character = getchar();
+        
+        if ((character = getchar()) == EOF) {
+            doneEofFlag = -1;
+        }
+        
         rawInput[c]   = character;
         c++;
     }
-    while(character != '\n');
+    while(character != '\n' );
     c = c - 1;
     rawInput[c] = '\0';
     
