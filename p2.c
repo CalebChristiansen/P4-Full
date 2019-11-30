@@ -449,7 +449,7 @@ main(int argc, char *argv[])
 
     }
     killpg(getpgrp(), SIGTERM); // Terminate any children that are still running. 
-    if (EOFDetected == 0) printf("p2 terminated.\n"); // ensure printf is after killpg
+    if (argvCopy[1] == NULL) printf("p2 terminated.\n"); // ensure printf is after killpg
     exit(0);
 
 }
