@@ -41,6 +41,7 @@ int pipeFlag = 0;
 char writeLocation[STORAGE];  // storage for the file to write to.
 char readLocation[STORAGE];   // storage for the file to read from.
 char rawInput[MAXINPUT];
+int EOFDetected = 0;
 
 void myhandler(int signum) // not sure what this is for yet
 {
@@ -342,6 +343,11 @@ main()
                 }
             }
         }
+        
+        // did the file we are reading frome end?
+        if (EOFDetected) {
+            break;
+        }
     }
     killpg(getpgrp(), SIGTERM); // Terminate any children that are still running. 
     printf("p2 terminated.\n"); // ensure printf is after killpg
@@ -358,7 +364,7 @@ char * getLine()
     {
         
         if ((character = getchar()) == EOF) {
-            doneEofFlag = -1;
+            EOFDetected = 1;
         }
         
         rawInput[c]   = character;
