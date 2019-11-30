@@ -42,6 +42,7 @@ char writeLocation[STORAGE];  // storage for the file to write to.
 char readLocation[STORAGE];   // storage for the file to read from.
 char rawInput[MAXINPUT];
 int EOFDetected = 0;
+char *argvCopy[];
 
 void myhandler(int signum) // not sure what this is for yet
 {
@@ -131,8 +132,9 @@ void formatPipeArgv() {
     argv2[j] = NULL;
 }
 
-main()
+main(int argc, char *argv[])
 {
+    argvCopy[1] = argv[1];
     char **wordLocationsPointer = wordLocations; //use *(wordLocationsPointer) to access
     pid_t child;
     setpgid(0,0);
@@ -433,7 +435,10 @@ int parse(char *rawInputPointer, int userInputFlag)
     resetGlobalVariables();
 
     /* Prompt User for Input */
-    if (userInputFlag == 0) {
+    if (argvCopy[1] != NULL) {
+        rawInputPointer = argvCopy[1];
+    }
+    else if (userInputFlag == 0) {
         clearArray(rawInput, MAXINPUT);
         rawInputPointer = getLine();
     } else {
