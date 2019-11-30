@@ -43,6 +43,7 @@ char readLocation[STORAGE];   // storage for the file to read from.
 char rawInput[MAXINPUT];
 int EOFDetected = 0;
 char *argvCopy[];
+int argcCopy;
 
 void myhandler(int signum) // not sure what this is for yet
 {
@@ -134,7 +135,10 @@ void formatPipeArgv() {
 
 main(int argc, char *argv[])
 {
-    argvCopy[1] = argv[1];
+    argcCopy = argc;
+    if (argc >= 2) {
+        argvCopy[1] = argv[1];
+    }
     char **wordLocationsPointer = wordLocations; //use *(wordLocationsPointer) to access
     pid_t child;
     setpgid(0,0);
@@ -232,8 +236,6 @@ main(int argc, char *argv[])
                     int dup2Out = dup2(exists, STDIN_FILENO);
                     close(exists);
                 }
-                
-
                 
                 /* This code is ineffcient! Will move to parse() later if time permits */
                 /* It is finding the arguments to place in execvp */
@@ -435,10 +437,21 @@ int parse(char *rawInputPointer, int userInputFlag)
     resetGlobalVariables();
 
     /* Prompt User for Input */
-    if (argvCopy[1] != NULL) {
-        rawInputPointer = argvCopy[1];
+    if (argcCopy >= 2 && argvCopy[1] != NULL) {
+          printf("%s \n", argvCopy[1]);   
+    /* Check for < to read from file */
+            if (*argvCopy[1] != '\0')  {
+                if (access(argvCopy[1], R_OK) == -1) {
+                    perror("Cannot read, file does not exist\n");
+                    exit(2);
+                }
+                int exists = open(argvCopy[1], O_RDONLY);
+                int dup2Out = dup2(exists, STDIN_FILENO);
+                close(exists);
+                argcCopy = 1;
+            }
     }
-    else if (userInputFlag == 0) {
+    if (userInputFlag == 0) {
         clearArray(rawInput, MAXINPUT);
         rawInputPointer = getLine();
     } else {
