@@ -300,16 +300,19 @@ main(int argc, char *argv[])
             }
 
             /* wait for child */
-            for (;;) {
-                pid_t pid;
-                if (backgroundFlag) {
-                    printf("pid = [%d]\n", child);
-                    printf("Process = %s\n", (*wordLocations));
-                    break;
-                }
-                CHK(pid = wait(NULL));
-                if (pid == child) {
-                    break;
+            if (backgroundFlag) {
+                printf("pid = [%d]\n", child);
+                printf("Process = %s\n", (*wordLocations));
+                fflush(NULL);
+                resetGlobalVariables();
+                continue;
+            } else {
+                for (;;) {
+                    pid_t pid;
+                    CHK(pid = wait(NULL));
+                    if (pid == child) {
+                        break;
+                    }
                 }
             }
             
@@ -360,6 +363,7 @@ main(int argc, char *argv[])
                 }
                 
                 //wait for second to finish
+                if (backgroundFlag)
                 for (;;) {
                     pid_t pid;
                     CHK(pid = wait(NULL));
@@ -427,12 +431,19 @@ main(int argc, char *argv[])
                 }
             }
             
-            //wait for first to finish
-            for (;;) {
-                pid_t pid;
-                CHK(pid = wait(NULL));
-                if (pid == first) {
-                    break;
+            /* wait for child */
+            if (backgroundFlag) {
+                printf("pid = [%d]\n", first);
+                printf("Process = %s\n", (*wordLocations));
+                fflush(NULL);
+                resetGlobalVariables();
+            } else {
+                for (;;) {
+                    pid_t pid;
+                    CHK(pid = wait(NULL));
+                    if (pid == first) {
+                        break;
+                    }
                 }
             }
         }
