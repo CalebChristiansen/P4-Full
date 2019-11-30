@@ -140,6 +140,7 @@ main()
 
     for(;;) {
         // did the file we are reading frome end?
+        printf("%d \n",EOFDetected);
         if (EOFDetected) {
             break;
         }
@@ -368,7 +369,6 @@ char * getLine()
         
         if ((character = getchar()) == EOF) {
             EOFDetected = 1;
-            break;
         }
         
         rawInput[c]   = character;
