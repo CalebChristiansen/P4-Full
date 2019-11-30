@@ -301,8 +301,7 @@ main(int argc, char *argv[])
 
             /* wait for child */
             if (backgroundFlag) {
-                printf("pid = [%d]\n", child);
-                printf("Process = %s\n", (*wordLocations));
+                printf("%s [%d]\n", (*wordLocations), child);
                 fflush(NULL);
                 resetGlobalVariables();
                 continue;
@@ -433,8 +432,7 @@ main(int argc, char *argv[])
             
             /* wait for child */
             if (backgroundFlag) {
-                printf("pid = [%d]\n", first);
-                printf("Process = %s\n", (*wordLocations));
+                printf("%s [%d]\n", (*wordLocations), first);
                 fflush(NULL);
                 resetGlobalVariables();
             } else {

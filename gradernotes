@@ -3,17 +3,25 @@ Caleb Christiansen
 cssc0024
 Professor: Dr. John Carroll
 
-I wrote this code with references to Foster's recommended inout2.c file as well
+I wrote this code myself with references to Foster's recommended inout2.c file as well
 as pipe.c
-Currently, everything works with the exception of the >> >>& >& and # words.
+
+Currently, all major components work. A few minor bugs exist and are explained below
+
+1. Backgrounding a task inserts an extra '\n' when the re-prompt is called.
+2. Some other backgrounding bugs occur when using pipes as revealed in the auto-grader.
+3. Early termination occurs in some tricky circumstances that I do not recall.
+
+Notes on history: the history function works perfectly. Note the following
+design choice: The !! command works but does not save anything to history as
+calling it would be vague. This behavior is therefore undefined.
+
+UPDATE: the following comments can be disregarded assuming the most recent 
+Grader (9:06 pm) is used. Just incase it is not, I have included them. 
 
 The auto grader falsely claims that I have not "#include all the .h files for
 the system calls recommended for program2" However, I have trippled checked
 this and all of them are included. Please add back the point it takes off.
-
-Notes on history: the history function works perfectly. Note the following
-design choice. The !! command does not save it's command to history as this
-calling it would be vauge. This behavior is therefore undefined.
 
 Notes on getword.h: The autograder claims this file must be a soft link
 note that this can be read as a contradiction of the assingment which
