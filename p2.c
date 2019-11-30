@@ -151,13 +151,14 @@ main(int argc, char *argv[])
     (void) signal(SIGTERM, myhandler);
 
     for(;;) {
-        // did the file we are reading frome end?
-
+        // did the file we are reading from end?
         if (EOFDetected) {
             break;
         }
-        
+        // only prompt if argv is not present
+        if (argvCopy[1] == NULL) {
         printf("%%%d%% ", numOfCommands);
+        }
 
         parse(rawInput, 0);
 
@@ -332,6 +333,7 @@ main(int argc, char *argv[])
                 pipe(fildes);
                 
                 //create second child
+                fflush(NULL); // ensure no duplication
                 CHK(second = fork());
                 if (second == 0) {
                     CHK(dup2(fildes[1],STDOUT_FILENO));
@@ -518,7 +520,6 @@ int parse(char *rawInputPointer, int userInputFlag)
 
     /* Prompt User for Input */
     if (argcCopy >= 2 && argvCopy[1] != NULL) {
-          printf("%s \n", argvCopy[1]);   
     /* Check for < to read from file */
             if (*argvCopy[1] != '\0')  {
                 if (access(argvCopy[1], R_OK) == -1) {
