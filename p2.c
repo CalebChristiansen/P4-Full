@@ -143,11 +143,12 @@ main()
         if (EOFDetected) {
             break;
         }
+        
         printf("%%%d%% ", numOfCommands);
 
         parse(rawInput, 0);
         
-        /* check for EOF */
+        /* check for Done */
         if (doneEofFlag == -1 && numWords == 0) break;
         /* check for empty line */ 
         if (numWords == 0) continue;
