@@ -17,7 +17,7 @@ calling it would be vauge. This behavior is therefore undefined.
 
 Notes on getword.h: The autograder claims this file must be a soft link
 note that this can be read as a contradiction of the assingment which
-sates we should use a "modified getword.c" my modifications of getword.c
+states we should use a "modified getword.c" my modifications of getword.c
 required the modification of getword.h as I choose to pass in variables.
 This could have been done using an external variable declaration but I
 prefer to write reusable code. My design is therefore preferable to the

@@ -368,6 +368,7 @@ char * getLine()
         
         if ((character = getchar()) == EOF) {
             EOFDetected = 1;
+            break;
         }
         
         rawInput[c]   = character;
