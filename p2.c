@@ -150,6 +150,10 @@ main()
 
         parse(rawInput, 0);
         
+        printf("this is numWords: %d\n", numWords);
+
+        printf("this is doneEofFlag: %d\n", doneEofFlag);
+
         /* check for Done */
         if (doneEofFlag == -1 && numWords == 0) break;
         /* check for empty line */ 
@@ -372,6 +376,7 @@ char * getLine()
             EOFDetected = 1;
         }
         
+        printf("this is character: %d\n", character);
         rawInput[c]   = character;
         c++;
     }
