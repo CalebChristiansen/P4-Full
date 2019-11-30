@@ -665,4 +665,8 @@ int parse(char *rawInputPointer, int userInputFlag)
     if (numWords > 0 && userInputFlag == 0) {
         numOfCommands++;
     }
+    if (numWords == 0 && (*writeLocation != '\0' || *readLocation != '\0'|| *writeLocationApp != '\0' || *writeLocationBack != '\0' || *writeLocationAnd != '\0') ) {
+        perror("Error, no command specified\n");
+        resetGlobalVariables();
+    }
 }
