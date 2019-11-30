@@ -3,5 +3,19 @@ Caleb Christiansen
 cssc0024
 Professor: Dr. John Carroll
 
-I wrote this code with references to Foster's recommended inout2.c file
-I believe everything works perfectly under all conditions
+I wrote this code with references to Foster's recommended inout2.c file as well
+as pipe.c
+Currently, everything works with the exception of the >> >>& >& and # words.
+
+The auto grader falsely claims that I have not "#include all the .h files for
+the system calls recommended for program2" However, I have trippled checked
+this and all of them are included. Please add back the point it takes off.
+
+Notes on history: the history function works perfectly. Note the following
+design choice. The !! command does not save it's command to history as this
+calling it would be vauge. This behavior is therefore undefined.
+
+
+
+
+
