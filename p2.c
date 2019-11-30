@@ -141,6 +141,7 @@ main()
     for(;;) {
         // did the file we are reading frome end?
         printf("%d \n",EOFDetected);
+        fflush(NULL);
         if (EOFDetected) {
             break;
         }
